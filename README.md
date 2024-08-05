@@ -1,7 +1,3 @@
-Certainly! Here is a brief description for your project that you can use to publish on GitHub:
-
----
-
 ## Data Entry Application
 
 ### Overview
