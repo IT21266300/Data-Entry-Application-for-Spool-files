@@ -55,8 +55,5 @@ Feel free to contribute to this project by submitting issues or pull requests. F
 
 ### Author
 
-This application was developed by [Your Name].
+This application was developed K.M.V. Thejan Bandara.
 
----
-
-Feel free to adjust any details or add more sections like "Screenshots" and "Contribution Guidelines" as per your preference.
