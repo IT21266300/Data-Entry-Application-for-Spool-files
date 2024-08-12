@@ -3,7 +3,9 @@ from tkinter import ttk, messagebox
 from datetime import datetime
 from tkinter import filedialog
 from reportlab.lib.pagesizes import letter
-from reportlab.pdfgen import canvas
+from reportlab.lib import colors
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
 
 # Function to add data to the list
 def add_data():
@@ -73,50 +75,62 @@ def print_table():
     file_path = filedialog.asksaveasfilename(defaultextension=".pdf", 
                                              filetypes=[("PDF files", "*.pdf"), ("All files", "*.*")])
     if file_path:
-        c = canvas.Canvas(file_path, pagesize=letter)
-        width, height = letter
-        y = height - 40
+        # Create a PDF document
+        pdf = SimpleDocTemplate(file_path, pagesize=letter)
+        elements = []
 
         # Title
-        c.setFont("Helvetica-Bold", 12)
-        c.drawString(30, y, "Restoration Report")
-        y -= 20
+        styles = getSampleStyleSheet()
+        title_style = styles['Heading1']
+        title_style.alignment = 1  # Center alignment
+        title = Paragraph("Restoration Report", title_style)
+        elements.append(title)
+        elements.append(Spacer(1, 20))
 
-        # Table header
-        c.setFont("Helvetica-Bold", 10)
-        headers = ["Branch Name", "Branch Code", "User Data", "Report Name", "Required Date"]
-        # headers = ["Branch Name", "Branch Code", "User Data", "Report Name", "Required Date", "Remarks"]
-        x = 30
-        for header in headers:
-            c.drawString(x, y, header)
-            x += 100
+        # Custom style for table cells
+        custom_style = ParagraphStyle(name='CustomStyle', fontSize=10, alignment=1, leading=12)
 
-        y -= 20
-
-        # Table content
-        c.setFont("Helvetica", 10)
+        # Table data
+        data_table = [
+            [
+                Paragraph("Branch Name", custom_style), 
+                Paragraph("Branch Code", custom_style), 
+                Paragraph("User Data", custom_style), 
+                Paragraph("Report Name", custom_style), 
+                Paragraph("Required Date", custom_style),
+                Paragraph("Remarks", custom_style)
+            ]
+        ]
         sorted_data = sorted(data, key=lambda x: x['Required Date'], reverse=True)
         for item in sorted_data:
-            x = 30
-            row = [
-                item['Branch Name'], 
-                item['Branch Code'], 
-                item['User Data'], 
-                item['Report Name'], 
-                item['Required Date'].strftime('%d/%m/%Y'), 
-                # item['Remarks']
-            ]
-            for value in row:
-                c.drawString(x, y, value)
-                x += 100
-            y -= 20
+            data_table.append([
+                Paragraph(item['Branch Name'], custom_style), 
+                Paragraph(item['Branch Code'], custom_style), 
+                Paragraph(item['User Data'], custom_style), 
+                Paragraph(item['Report Name'], custom_style), 
+                Paragraph(item['Required Date'].strftime('%d/%m/%Y'), custom_style)
+            ])
+        
+        # Column widths
+        col_widths = [100, 60, 100, 100, 100, 140]
 
-            # Create new page if the content exceeds one page
-            if y < 40:
-                c.showPage()
-                y = height - 40
+        # Create table
+        table = Table(data_table, colWidths=col_widths)
+        table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.white),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 12),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+            ('BACKGROUND', (0, 1), (-1, -1), colors.white),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),
+            ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+            ('FONTSIZE', (0, 1), (-1, -1), 10),
+        ]))
 
-        c.save()
+        elements.append(table)
+        pdf.build(elements)
         messagebox.showinfo("Success", f"Data saved to {file_path}")
 
 # Initialize the data list
@@ -124,7 +138,7 @@ data = []
 
 # Create the main window
 root = tk.Tk()
-root.title("Data Entry Application")
+root.title("Spool FIle Request Data Entry Application")
 
 # Frame for data entry fields
 frame_entry = tk.Frame(root)
@@ -151,10 +165,6 @@ tk.Label(frame_entry, text="Required Date (DD/MM/YYYY)").grid(row=4, column=0)
 entry_required_date = tk.Entry(frame_entry)
 entry_required_date.grid(row=4, column=1, padx=5, pady=5)
 
-# tk.Label(frame_entry, text="Remarks").grid(row=5, column=0)
-# entry_remarks = tk.Entry(frame_entry)
-# entry_remarks.grid(row=5, column=1, padx=5, pady=5)
-
 # Frame for buttons
 frame_buttons = tk.Frame(root)
 frame_buttons.pack(padx=10, pady=10, fill=tk.X)
@@ -168,7 +178,6 @@ button_print_table.grid(row=0, column=2, padx=5, pady=5)
 
 # Create the table view
 columns = ("Branch Name", "Branch Code", "User Data", "Report Name", "Required Date")
-# columns = ("Branch Name", "Branch Code", "User Data", "Report Name", "Required Date", "Remarks")
 table = ttk.Treeview(root, columns=columns, show='headings')
 
 for col in columns:
@@ -182,3 +191,5 @@ entry_branch_name.focus_set()
 
 # Start the main event loop
 root.mainloop()
+
+
