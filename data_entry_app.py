@@ -74,45 +74,55 @@ def update_table():
 def print_table():
     file_path = filedialog.asksaveasfilename(defaultextension=".pdf", 
                                              filetypes=[("PDF files", "*.pdf"), ("All files", "*.*")])
+    
     if file_path:
         # Create a PDF document
-        pdf = SimpleDocTemplate(file_path, pagesize=letter)
+        pdf = SimpleDocTemplate(file_path, pagesize=letter, leftMargin=100, rightMargin=100, topMargin=20, bottomMargin=20 )
+        # Create a PDF document with margins (left, right, top, bottom)
+
+
+        
         elements = []
 
         # Title
         styles = getSampleStyleSheet()
         title_style = styles['Heading1']
         title_style.alignment = 1  # Center alignment
-        title = Paragraph("Restoration Report", title_style)
+        title = Paragraph("Restoration Request for ...................", title_style)
         elements.append(title)
-        elements.append(Spacer(1, 20))
+        elements.append(Spacer(2, 10))
 
         # Custom style for table cells
         custom_style = ParagraphStyle(name='CustomStyle', fontSize=10, alignment=1, leading=12)
 
-        # Table data
+        # Table data with "No" column
         data_table = [
             [
+                Paragraph("No", custom_style),
                 Paragraph("Branch Name", custom_style), 
                 Paragraph("Branch Code", custom_style), 
                 Paragraph("User Data", custom_style), 
                 Paragraph("Report Name", custom_style), 
                 Paragraph("Required Date", custom_style),
-                Paragraph("Remarks", custom_style)
+                Paragraph("Remarks", custom_style) 
             ]
         ]
+        
+        # Add row numbers and other data
         sorted_data = sorted(data, key=lambda x: x['Required Date'], reverse=True)
-        for item in sorted_data:
+        for i, item in enumerate(sorted_data, start=1):
             data_table.append([
+                Paragraph(str(i), custom_style),  # "No" column
                 Paragraph(item['Branch Name'], custom_style), 
                 Paragraph(item['Branch Code'], custom_style), 
                 Paragraph(item['User Data'], custom_style), 
                 Paragraph(item['Report Name'], custom_style), 
-                Paragraph(item['Required Date'].strftime('%d/%m/%Y'), custom_style)
+                Paragraph(item['Required Date'].strftime('%d/%m/%Y'), custom_style),
+                # Paragraph(item.get('Remarks', ''), custom_style)  # Add Remarks field if needed
             ])
         
-        # Column widths
-        col_widths = [100, 60, 100, 100, 100, 140]
+        # Column widths (adjusted to fit the "No" column)
+        col_widths = [30, 100, 45, 70, 100, 68, 120]
 
         # Create table
         table = Table(data_table, colWidths=col_widths)
