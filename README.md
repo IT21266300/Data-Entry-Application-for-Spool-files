@@ -39,7 +39,8 @@ This Data Entry Application is a simple, user-friendly tool designed for managin
 
 ### Screenshots
 
-(Add screenshots here to showcase the application interface and features)
+![image](https://github.com/user-attachments/assets/dfcfc076-523a-4bc4-8198-ab239e63ad15)
+
 
 ### License
 
